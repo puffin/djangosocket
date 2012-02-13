@@ -4,10 +4,10 @@ from djangosocket.conf import settings
 from djangosocket.websocket import setup_djangosocket, MalformedWebSocket
 
 
-class WebSocketMiddleware(object):
+class DjangoSocketMiddleware(object):
     def process_request(self, request):
         try:
-            request.websocket = setup_websocket(request, socket_server_name=DJANGOSOCKET_SERVER_NAME)
+            request.websocket = setup_djangosocket(request, socket_server_name=DJANGOSOCKET_SERVER_NAME)
             request.is_websocket = lambda: True
         except MalformedWebSocket, e:
             request.websocket = None

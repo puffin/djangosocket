@@ -32,7 +32,7 @@ def _get_key_value(value):
             spaces += 1
     return int(out) / spaces
 
-def setup_websocket(request, socket_server_name):
+def setup_djangosocket(request, socket_server_name):
     
     if request.META.get('HTTP_CONNECTION', '').lower() == 'upgrade' and \
         request.META.get('HTTP_UPGRADE', '').lower() == 'websocket':

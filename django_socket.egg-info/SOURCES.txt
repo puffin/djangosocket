@@ -11,3 +11,5 @@ djangosocket/websocket.py
 djangosocket/management/__init__.py
 djangosocket/management/commands/__init__.py
 djangosocket/management/commands/runserver.py
+djangosocket/utils/__init__.py
+djangosocket/utils/settings.py
