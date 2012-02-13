@@ -39,7 +39,7 @@ def setup_websocket(request, socket_server_name):
         
         if socket_server_name == 'wsgi':
             socket = request.META['wsgi.input']._sock.dup()
-        else if socket_server_name == 'gunicorn':
+        elif socket_server_name == 'gunicorn':
             socket = request.META['gunicorn.socket']
         
         key = request.META.get('HTTP_SEC_WEBSOCKET_KEY', None)
