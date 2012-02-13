@@ -15,7 +15,7 @@ def _setup_djangosocket(func):
         if response is None and request.is_websocket():
             return HttpResponse()
         return response
-    if not DJANGOSOCKET_MIDDLEWARE_INSTALLED:
+    if not settings.DJANGOSOCKET_MIDDLEWARE_INSTALLED:
         decorator = decorator_from_middleware(DjangoSocketMiddleware)
         new_func = decorator(new_func)
     return new_func

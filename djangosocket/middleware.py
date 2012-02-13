@@ -7,7 +7,7 @@ from djangosocket.websocket import setup_djangosocket, MalformedWebSocket
 class DjangoSocketMiddleware(object):
     def process_request(self, request):
         try:
-            request.websocket = setup_djangosocket(request, socket_server_name=DJANGOSOCKET_SERVER_NAME)
+            request.websocket = setup_djangosocket(request, socket_server_name=settings.DJANGOSOCKET_SERVER_NAME)
             request.is_websocket = lambda: True
         except MalformedWebSocket, e:
             request.websocket = None
@@ -18,7 +18,7 @@ class DjangoSocketMiddleware(object):
         # open websocket if its an accepted request
         if request.is_websocket():
             # deny websocket request if view can't handle websocket
-            if not DJANGOSOCKET_ACCEPT_ALL and \
+            if not settings.DJANGOSOCKET_ACCEPT_ALL and \
                 not getattr(view_func, 'accept_websocket', False):
                 return HttpResponseBadRequest()
             # everything is fine .. so prepare connection by sending handshake
