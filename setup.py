@@ -32,5 +32,5 @@ setup(
     provides=['djangosocket'],
     include_package_data=True,
     zip_safe=True,
-    requires=['Django(>=1.3)'],
+    requires=['Django(>=1.3)', 'eventlet(>=0.9)',],
 )

@@ -32,12 +32,15 @@ def _get_key_value(value):
             spaces += 1
     return int(out) / spaces
 
-def setup_websocket(request):
+def setup_websocket(request, socket_server_name):
     
     if request.META.get('HTTP_CONNECTION', '').lower() == 'upgrade' and \
         request.META.get('HTTP_UPGRADE', '').lower() == 'websocket':
         
-        socket = request.META['gunicorn.socket']
+        if socket_server_name == 'wsgi':
+            socket = request.META['wsgi.input']._sock.dup()
+        else if socket_server_name == 'gunicorn':
+            socket = request.META['gunicorn.socket']
         
         key = request.META.get('HTTP_SEC_WEBSOCKET_KEY', None)
         key1 = request.META.get('HTTP_SEC_WEBSOCKET_KEY1', None)
