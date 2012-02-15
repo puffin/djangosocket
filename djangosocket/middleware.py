@@ -1,13 +1,18 @@
+# -*- coding: utf-8 -
+
 from django.http import HttpResponseBadRequest
 
 from djangosocket.conf import settings
-from djangosocket.websocket import setup_djangosocket, MalformedWebSocket
+from gunicorn.workers.async import ALREADY_HANDLED
+
+from djangosocket.websocket import setup_djangosocket
+from djangosocket.stream.base import MalformedWebSocket
 
 
 class DjangoSocketMiddleware(object):
     def process_request(self, request):
         try:
-            request.websocket = setup_djangosocket(request, socket_server_name=settings.DJANGOSOCKET_SERVER_NAME)
+            request.websocket = setup_djangosocket(request)
             request.is_websocket = lambda: True
         except MalformedWebSocket, e:
             request.websocket = None
@@ -19,15 +24,14 @@ class DjangoSocketMiddleware(object):
         if request.is_websocket():
             # deny websocket request if view can't handle websocket
             if not settings.DJANGOSOCKET_ACCEPT_ALL and \
-                not getattr(view_func, 'accept_websocket', False):
+                not getattr(view_func, 'accept_djangosocket', False):
                 return HttpResponseBadRequest()
             # everything is fine .. so prepare connection by sending handshake
-            request.websocket.send_handshake()
-        elif getattr(view_func, 'require_websocket', False):
+            request.websocket.do_handshake()
+        elif getattr(view_func, 'require_djangosocket', False):
             # websocket was required but not provided
             return HttpResponseBadRequest()
 
     def process_response(self, request, response):
-        if request.is_websocket() and request.websocket._handshake_sent:
-            request.websocket._send_closing_frame(True)
-        return response
+        if request.is_websocket():
+            return ALREADY_HANDLED
