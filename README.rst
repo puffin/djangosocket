@@ -33,9 +33,8 @@ that you can install in your django settings file if you want project-wide webso
 handling.
 
 Djangosocket add a websocket object to the django HTTPRequest that you can access in your view
-by calling: request.websocket
-
-.. code-block:: console
+by calling: request.websocket::
+    
     MIDDLEWARE_CLASSES = (
         'django.middleware.common.CommonMiddleware',
         ...
@@ -44,9 +43,8 @@ by calling: request.websocket
     )
 
 If your project mix standard Django views with websocket views, Djangosocket provides
-two decorators for your views: "accept_djangosocket" and "require_djangosocket".
+two decorators for your views: "accept_djangosocket" and "require_djangosocket"::
 
-.. code-block:: console
     from djangosocket.decorator import require_djangosocket
 
     @require_djangosocket
