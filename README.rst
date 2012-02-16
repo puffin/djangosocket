@@ -45,7 +45,7 @@ by calling: request.websocket::
 If your project mix standard Django views with websocket views, Djangosocket provides
 two decorators for your views: "accept_djangosocket" and "require_djangosocket"::
 
-    from djangosocket.decorator import require_djangosocket
+    from djangosocket.decorators import require_djangosocket
 
     @require_djangosocket
     def your_view(request):
