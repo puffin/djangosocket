@@ -51,7 +51,6 @@ class DjangoSocketMiddleware(object):
                 return HttpResponseBadRequest()
             # everything is fine .. so prepare connection by sending handshake
             request.websocket.do_handshake()
-            return ALREADY_HANDLED
         elif getattr(view_func, 'require_djangosocket', False):
             # websocket was required but not provided
             return HttpResponseBadRequest()
