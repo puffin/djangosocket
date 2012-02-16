@@ -35,7 +35,7 @@ handling.
 Djangosocket add a websocket object to the django HTTPRequest that you can access in your view
 by calling: request.websocket
 
-.. code-block:: python
+.. code-block:: console
     MIDDLEWARE_CLASSES = (
         'django.middleware.common.CommonMiddleware',
         ...
@@ -46,7 +46,7 @@ by calling: request.websocket
 If your project mix standard Django views with websocket views, Djangosocket provides
 two decorators for your views: "accept_djangosocket" and "require_djangosocket".
 
-.. code-block:: python
+.. code-block:: console
     from djangosocket.decorator import require_djangosocket
 
     @require_djangosocket
