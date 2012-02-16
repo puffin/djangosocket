@@ -9,7 +9,7 @@ except Exception:
 
 setup(
     name='django-socket',
-    version='1.0',
+    version='0.1',
     description='Django Socket Webserver.',
     author='David Michon',
     author_email='david.michon@gmail.com',

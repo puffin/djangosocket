@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -
 
 """
-WebSocket protocol with the framing used by Hixie 76.
+WebSocket protocol with the framing used by hybi protocol.
 """
 
 import re
@@ -219,7 +219,7 @@ class WebSocket(StreamBase):
             f['mask'] = buf[f['hlen']:f['hlen']+4]
             f['payload'] = WebSocket.unmask(buf, f)
         else:
-            print("Unmasked frame: %s" % repr(buf))
+            WebSocket._logger("Unmasked frame: %s" % repr(buf))
             f['payload'] = buf[(f['hlen'] + has_mask * 4):full_len]
         
         if f['opcode'] == 0x08:

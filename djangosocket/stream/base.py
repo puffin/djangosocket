@@ -45,6 +45,7 @@ class UnsupportedFrameException(Exception):
 
     pass
 
+
 class UnsupportedProtocolException(Exception):
     """
     This exception will be raised when we receive a frame with protocol
@@ -53,6 +54,7 @@ class UnsupportedProtocolException(Exception):
 
     pass
 
+
 class InvalidUTF8Exception(Exception):
     """
     This exception will be raised when we receive a text frame which
@@ -60,6 +62,46 @@ class InvalidUTF8Exception(Exception):
     """
 
     pass
+
+
+class AbortedByUserException(Exception):
+    """
+    Exception for aborting a connection intentionally.
+
+    If this exception is raised the connection will be abandoned.
+    No other WebSocket or HTTP(S) handler will be invoked.
+    """
+
+    pass
+
+
+class HandshakeException(Exception):
+    """
+    This exception will be raised when an error occurred while processing
+    WebSocket initial handshake.
+    """
+
+    def __init__(self, name, status=None):
+        super(HandshakeException, self).__init__(name)
+        self.status = status
+
+
+class VersionException(Exception):
+    """
+    This exception will be raised when a version of client request does not
+    match with version the server supports.
+    """
+
+    def __init__(self, name, supported_versions=''):
+        """
+        Construct an instance.
+
+        supported_version is a str object to show supported hybi versions.
+        (e.g. '8, 13')
+        """
+
+        super(VersionException, self).__init__(name)
+        self.supported_versions = supported_versions
 
 
 class StreamBase(object):
@@ -178,55 +220,6 @@ class StreamBase(object):
             except:
                 return
             yield message
-
-
-"""
-const functions and exceptions used by WebSocket opening handshake
-processors.
-"""
-
-class AbortedByUserException(Exception):
-    """
-    Exception for aborting a connection intentionally.
-
-    If this exception is raised in do_extra_handshake handler, the connection
-    will be abandoned. No other WebSocket or HTTP(S) handler will be invoked.
-
-    If this exception is raised in transfer_data_handler, the connection will
-    be closed without closing handshake. No other WebSocket or HTTP(S) handler
-    will be invoked.
-    """
-
-    pass
-
-
-class HandshakeException(Exception):
-    """
-    This exception will be raised when an error occurred while processing
-    WebSocket initial handshake.
-    """
-
-    def __init__(self, name, status=None):
-        super(HandshakeException, self).__init__(name)
-        self.status = status
-
-
-class VersionException(Exception):
-    """
-    This exception will be raised when a version of client request does not
-    match with version the server supports.
-    """
-
-    def __init__(self, name, supported_versions=''):
-        """
-        Construct an instance.
-
-        supported_version is a str object to show supported hybi versions.
-        (e.g. '8, 13')
-        """
-        
-        super(VersionException, self).__init__(name)
-        self.supported_versions = supported_versions
 
 
 def build_location(request):

@@ -5,6 +5,13 @@ class MalformedWebSocket(ValueError):
     
     
 def setup_djangosocket(request):
+    """
+    Helper function that return a websocket object based on the protocol
+    used by the client. Actually support:
+    
+    - hixie76 protocol (Safari 5+)
+    - hybi protocol (Chrome 13+)
+    """
     
     if request.META.get('HTTP_CONNECTION', '').lower() == 'upgrade' and \
         request.META.get('HTTP_UPGRADE', '').lower() == 'websocket':

@@ -24,11 +24,13 @@ class DjangoSocketMiddleware(object):
         - If "websocket" exists in Request, return a an ALREADY_HANDLED object as
           response to prevent barf on the fact that socket doesn't call response
     """
+    
     def process_request(self, request):
         """
         Append "websocket" object to Request if available, otherwise return
         a Bad Request Response (400)
         """
+        
         try:
             request.websocket = setup_djangosocket(request)
             request.is_websocket = lambda: True
@@ -41,8 +43,12 @@ class DjangoSocketMiddleware(object):
         """
         Ensure that the view is called accept websocket by settings
         DJANGOSOCKET_ACCEPT_ALL or decorating the view with accept_djangosocket
-        decorator
+        decorator.
+        
+        Return Bad Request Response (400) if view require a websocket (require_djangosocket)
+        and no websocket object exists in Request
         """
+        
         # open websocket if its an accepted request
         if request.is_websocket():
             # deny websocket request if view can't handle websocket
@@ -56,5 +62,10 @@ class DjangoSocketMiddleware(object):
             return HttpResponseBadRequest()
 
     def process_response(self, request, response):
+        """
+        If "websocket" exists in Request, return a an ALREADY_HANDLED object as
+        response to prevent barf on the fact that socket doesn't call response
+        """
+        
         if request.is_websocket():
             return ALREADY_HANDLED

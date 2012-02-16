@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -
+from gunicorn.workers.async import ALREADY_HANDLED
 
 from django.http import HttpResponse
 from django.utils.decorators import decorator_from_middleware
@@ -15,7 +16,7 @@ def _setup_djangosocket(func):
     def new_func(request, *args, **kwargs):
         response = func(request, *args, **kwargs)
         if response is None and request.is_websocket():
-            return HttpResponse()
+            return ALREADY_HANDLED
         return response
     if not settings.DJANGOSOCKET_MIDDLEWARE_INSTALLED:
         decorator = decorator_from_middleware(DjangoSocketMiddleware)
@@ -24,6 +25,10 @@ def _setup_djangosocket(func):
 
 
 def accept_djangosocket(func):
+    """
+    Decorator for views that accept websocket object.
+    """
+    
     func.accept_djangosocket = True
     func.require_djangosocket = getattr(func, 'require_djangosocket', False)
     func = _setup_djangosocket(func)
@@ -31,6 +36,10 @@ def accept_djangosocket(func):
 
 
 def require_djangosocket(func):
+    """
+    Decorator for views that require websocket object.
+    """
+    
     func.accept_djangosocket = True
     func.require_djangosocket = True
     func = _setup_djangosocket(func)

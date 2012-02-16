@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -
 
 """
-WebSocket protocol with the framing used by Hixie 76.
+WebSocket protocol with the framing used by Hixie 76 protocol.
 """
 
 import re
@@ -103,8 +103,7 @@ class WebSocket(StreamBase):
         """
 
         if self.closed:
-            raise BadOperationException(
-                'Requested send after sending out a closing handshake')
+            raise BadOperationException('Requested send after sending out a closing handshake')
 
         if isinstance(message, unicode):
             message = message.encode('utf-8')
