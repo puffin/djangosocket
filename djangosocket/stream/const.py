@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -
+
 # Constants indicating WebSocket protocol version.
 VERSION_HIXIE76 = -1
 VERSION_HYBI00 = 0

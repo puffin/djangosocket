@@ -7,8 +7,6 @@ from eventlet import semaphore
 
 from djangosocket.stream import const
 
-class MalformedWebSocket(ValueError):
-    pass
 
 class ConnectionTerminatedException(Exception):
     """

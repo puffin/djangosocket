@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -
+
+class MalformedWebSocket(ValueError):
+    pass
+    
+    
 def setup_djangosocket(request):
     
     if request.META.get('HTTP_CONNECTION', '').lower() == 'upgrade' and \
