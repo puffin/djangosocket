@@ -156,6 +156,9 @@ class StreamBase(object):
         self._sendlock.acquire()
         try:
             self._socket.sendall(bytes)
+        except:
+            # we cannot send a message, the socket may be closed by the client
+            self.closed = True
         finally:
             self._sendlock.release()
     
