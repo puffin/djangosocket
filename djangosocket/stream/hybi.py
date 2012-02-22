@@ -34,7 +34,7 @@ from djangosocket.stream.base import build_location
 
 class WebSocket(StreamBase):
     """
-    This class performs WebSocket handshake for Hixie76 protocol.
+    This class performs WebSocket handshake for hybi protocol.
     """
     
     def __init__(self, request, socket):
