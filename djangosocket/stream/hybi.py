@@ -36,7 +36,7 @@ class WebSocket(StreamBase):
     """
     This class performs WebSocket handshake for hybi protocol.
     """
-    
+
     def __init__(self, request, socket):
         """
         Construct an instance of WebSocket.
@@ -45,47 +45,48 @@ class WebSocket(StreamBase):
         socket: django request websocket object.
         """
         super(WebSocket, self).__init__(socket)
-        
+
         self._logger = logging.getLogger('djangosocket.websocket')
         self._request = request
         self._origin = request.META.get('HTTP_ORIGIN', '')
         self._location = build_location(request)
-        self._protocol = request.META.get('HTTP_SEC_WEBSOCKET_PROTOCOL', 'default')
+        self._protocol = request.META.get('HTTP_SEC_WEBSOCKET_PROTOCOL', '')
         self._version = const.VERSION_HYBI_LATEST
         self.recv_part = ''
-        
+
         protocols = self._protocol.split(',')
         if 'binary' in protocols:
             self.base64 = False
         else:
             self.base64 = True
-        
+
     def gen_challenge(self):
         """
         Generate hash value for WebSockets hybi.
         """
-        
+
         key = self._request.META.get('HTTP_SEC_WEBSOCKET_KEY', None)
-        
+
         challenge = sha1()
         challenge.update(key + const.WEBSOCKET_ACCEPT_UUID)
         return b64encode(challenge.digest())
-    
+
     def _send_handshake(self):
-        
+
         handshake_parts = []
         handshake_parts.append('HTTP/1.1 101 Switching Protocols\r\n')
         handshake_parts.append('%s: %s\r\n' %(const.UPGRADE_HEADER, const.WEBSOCKET_UPGRADE_TYPE))
         handshake_parts.append('%s: %s\r\n' % (const.CONNECTION_HEADER, const.UPGRADE_CONNECTION_TYPE))
         handshake_parts.append('%s: %s\r\n' % (const.SEC_WEBSOCKET_ORIGIN_HEADER, self._origin))
         handshake_parts.append('%s: %s\r\n' % (const.SEC_WEBSOCKET_LOCATION_HEADER, self._location))
-        handshake_parts.append('%s: %s\r\n' % (const.SEC_WEBSOCKET_PROTOCOL_HEADER, self._protocol))
+        if self._protocol:
+            handshake_parts.append('%s: %s\r\n' % (const.SEC_WEBSOCKET_PROTOCOL_HEADER, self._protocol))
         handshake_parts.append('%s: %s\r\n' % (const.SEC_WEBSOCKET_ACCEPT_HEADER, self.gen_challenge()))
         handshake_parts.append('\r\n')
         handshake_reply = str(''.join(handshake_parts))
-        
+
         self._write(handshake_reply)
-    
+
     def _send_closing_handshake(self):
         self.closed = True
 
@@ -95,15 +96,15 @@ class WebSocket(StreamBase):
         # start of the closing handshake.
         buf, h, t = self.encode_hybi('', opcode=0x08)
         self._write(buf)
-    
+
     @staticmethod
     def unmask(buf, f):
         s2a = lambda s: [ord(c) for c in s]
         s2b = lambda s: s
-        
+
         pstart = f['hlen'] + 4
         pend = pstart + f['length']
-        
+
         if numpy:
             b = c = s2b('')
             if f['length'] >= 4:
@@ -124,12 +125,12 @@ class WebSocket(StreamBase):
         else:
             data = array.array('B')
             mask = s2a(f['mask'])
-        
+
             data.fromstring(buf[pstart:pend])
             for i in range(len(data)):
                 data[i] ^= mask[i % 4]
             return data.tostring()
-    
+
     @staticmethod
     def encode_hybi(buf, opcode):
         """
@@ -142,7 +143,7 @@ class WebSocket(StreamBase):
             0x9 - ping
             0xA - pong
         """
-        
+
         b1 = 0x80 | (opcode & 0x0f) # FIN + opcode
         payload_len = len(buf)
         if payload_len <= 125:
@@ -153,12 +154,12 @@ class WebSocket(StreamBase):
             header = struct.pack('>BBQ', b1, 127, payload_len)
 
         return header + buf, len(header), 0
-    
+
     @staticmethod
     def decode_hybi(buf):
         """
         Decode HyBi style WebSocket packets.
-        
+
         Returns:
             {'fin'          : 0_or_1,
              'opcode'       : number,
@@ -186,14 +187,14 @@ class WebSocket(StreamBase):
 
         if blen < f['hlen']:
             return f # Incomplete frame header
-        
+
         b1, b2 = struct.unpack_from(">BB", buf)
         f['opcode'] = b1 & 0x0f
         f['fin'] = (b1 & 0x80) >> 7
         has_mask = (b2 & 0x80) >> 7
-        
+
         f['length'] = b2 & 0x7f
-        
+
         if f['length'] == 126:
             f['hlen'] = 4
             if blen < f['hlen']:
@@ -221,7 +222,7 @@ class WebSocket(StreamBase):
         else:
             WebSocket._logger("Unmasked frame: %s" % repr(buf))
             f['payload'] = buf[(f['hlen'] + has_mask * 4):full_len]
-        
+
         if f['opcode'] == 0x08:
             if f['length'] >= 2:
                 f['close_code'] = struct.unpack_from(">H", f['payload'])
@@ -229,7 +230,7 @@ class WebSocket(StreamBase):
                 f['close_reason'] = f['payload'][2:]
 
         return f
-    
+
     def send(self, message):
         """
         Send message.
@@ -239,16 +240,16 @@ class WebSocket(StreamBase):
         Raises BadOperationException when called on a server-terminated
         connection.
         """
-        
+
         if self.closed:
             raise BadOperationException(
                 'Requested send after sending out a closing handshake')
-        
+
         if self.base64:
             encbuf, lenhead, lentail = self.encode_hybi(message, opcode=1)
         else:
             encbuf, lenhead, lentail = self.encode_hybi(message, opcode=2)
-        
+
         self._write(encbuf)
 
     def _parse_message_queue(self):
@@ -268,14 +269,14 @@ class WebSocket(StreamBase):
 
         msgs = []
         buf = self._buffer
-        
+
         while buf:
-            
+
             try:
                 frame = self.decode_hybi(buf)
             except Exception, e:
                 print e
-            
+
             if frame['payload'] == None:
                 # Incomplete/partial frame
                 if frame['left'] > 0:
@@ -285,11 +286,11 @@ class WebSocket(StreamBase):
                 break
             else:
                 msgs.append(frame['payload'])
-            
+
             if frame['left']:
                 buf = buf[-frame['left']:]
             else:
                 buf = ''
-                
+
         self._buffer = buf
         return msgs
